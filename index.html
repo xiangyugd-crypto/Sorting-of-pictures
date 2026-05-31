@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>九宫格图片海报编辑器</title>
+    <link rel="stylesheet" href="./styles.css?v=20260530-v030" />
+  </head>
+  <body>
+    <section class="login-screen" id="loginScreen" hidden>
+      <form class="login-card" id="loginForm">
+        <h1>图片海报云端版</h1>
+        <label>
+          登录账号
+          <input id="loginUsername" type="text" autocomplete="username" required />
+        </label>
+        <label>
+          登录密码
+          <input id="loginPassword" type="password" autocomplete="current-password" required />
+        </label>
+        <p class="error-text" id="loginError"></p>
+        <button class="primary-button" type="submit">登录</button>
+      </form>
+    </section>
+
+    <main class="app-shell">
+      <section class="editor-panel" aria-label="编辑面板">
+        <div class="panel-header">
+          <div>
+            <h1>图片海报编辑器</h1>
+            <p>先提交本地图片到服务器压缩，再从显示区选择图片加入页面。</p>
+            <p class="account-line" id="accountLine"></p>
+          </div>
+          <div class="header-actions">
+            <button class="ghost-button" id="resetButton" type="button">清空</button>
+            <button class="ghost-button" id="logoutButton" type="button">退出</button>
+          </div>
+        </div>
+
+        <form class="editor-form" id="itemForm">
+          <label id="fileField">
+            选择图片（可多选）
+            <input id="imageFile" type="file" accept="image/*" multiple />
+          </label>
+
+          <button class="primary-button" type="submit">提交图片</button>
+          <p class="error-text" id="addMessage"></p>
+        </form>
+      </section>
+
+      <section class="preview-panel" aria-label="海报预览">
+        <div class="poster-toolbar">
+          <button class="primary-button" id="selectAssetButton" type="button">选择图片</button>
+          <label>
+            每行图片数
+            <select id="posterColumns">
+              <option value="1">1 张</option>
+              <option value="2">2 张</option>
+              <option value="3" selected>3 张</option>
+              <option value="4">4 张</option>
+              <option value="5">5 张</option>
+              <option value="6">6 张</option>
+              <option value="7">7 张</option>
+              <option value="8">8 张</option>
+            </select>
+          </label>
+        </div>
+
+        <article class="poster" id="poster">
+          <header class="poster-header">
+            <h2 id="posterTitleView" data-poster-field="title">三分</h2>
+            <p id="posterSubtitleView" data-poster-field="subtitle">(及三分以上)</p>
+            <strong id="posterAuthorView" data-poster-field="author">@裴月歌</strong>
+          </header>
+          <div class="tile-grid" id="tileGrid" aria-label="图片小框列表"></div>
+        </article>
+      </section>
+
+      <section class="secondary-panel" aria-label="账号与保存">
+        <section class="controls-card account-card" id="accountPanel" aria-label="当前账号" hidden>
+          <div class="section-title">
+            <h2>当前账号</h2>
+          </div>
+          <div class="account-summary">
+            <p>
+              <strong id="accountName"></strong>
+              <span id="accountUsage"></span>
+            </p>
+            <button class="ghost-button danger-button" id="clearAccountButton" type="button">清除本账号储存</button>
+          </div>
+          <button class="ghost-button" id="togglePasswordButton" type="button">修改密码</button>
+          <div class="password-form" id="passwordForm" hidden>
+            <label>
+              当前密码
+              <input id="selfCurrentPassword" type="password" autocomplete="current-password" />
+            </label>
+            <label>
+              新密码
+              <input id="selfNewPassword" type="password" minlength="3" maxlength="8" placeholder="3-8 位" />
+            </label>
+            <button class="primary-button" id="changePasswordButton" type="button">确认修改</button>
+            <p class="error-text" id="passwordMessage"></p>
+          </div>
+        </section>
+
+        <section class="controls-card capture-card" aria-label="截图保存">
+          <div class="section-title">
+            <h2>截图保存</h2>
+          </div>
+          <div class="form-row">
+            <label>
+              保存高度
+              <input id="captureHeight" type="number" min="320" step="50" placeholder="留空保存整页" />
+            </label>
+            <button class="primary-button" id="captureButton" type="button">保存截图</button>
+          </div>
+          <p class="helper-text">留空会保存整张海报；填写高度时从顶部开始保存指定长度。</p>
+        </section>
+
+        <section class="controls-card admin-card" id="adminPanel" aria-label="管理员账号管理" hidden>
+          <div class="section-title">
+            <h2>账号空间</h2>
+          </div>
+          <div class="form-row">
+            <label>
+              新账号
+              <input id="newUsername" type="text" placeholder="账号" />
+            </label>
+            <label>
+              初始密码
+              <input id="newPassword" type="password" placeholder="3-8 位" />
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              存储空间
+              <input id="newQuota" type="text" value="512mb" />
+            </label>
+            <button class="primary-button" id="createUserButton" type="button">创建账号</button>
+          </div>
+          <div class="user-list" id="userList"></div>
+        </section>
+      </section>
+    </main>
+
+    <template id="tileTemplate">
+      <figure class="tile" draggable="true">
+        <div class="tile-actions">
+          <button type="button" data-action="up" aria-label="前移">↑</button>
+          <button type="button" data-action="down" aria-label="后移">↓</button>
+          <button type="button" data-action="delete" aria-label="删除">×</button>
+        </div>
+        <div class="tile-frame">
+          <img alt="" />
+          <figcaption>
+            <strong></strong>
+            <span></span>
+          </figcaption>
+        </div>
+      </figure>
+    </template>
+
+    <script src="./app.js?v=20260530-v030"></script>
+  </body>
+</html>
